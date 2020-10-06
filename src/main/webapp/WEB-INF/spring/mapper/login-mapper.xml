@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org/DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- sql 매핑파일 설정 -->
+<!-- emp.all 이렇게 쿼리를 불러온다.-->
+<!-- namespace.id -->
+<mapper namespace="login">
+	<select id="select_login" parameterType="MemberVO" resultType="MemberVO">
+	SELECT member_id, member_phone,member_email,member_gender,member_nickname,member_code,
+	member_image
+	FROM MEMBER 
+	WHERE MEMBER_ID = #{member_id} AND MEMBER_PW = #{member_pw}
+	</select>
+
+</mapper>

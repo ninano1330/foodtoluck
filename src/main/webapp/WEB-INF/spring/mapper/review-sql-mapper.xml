@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- <mapper namespace="#package.#mapperinterfacename"> -->
+<mapper namespace="review">
+	<select id="selectDetailedMenu" parameterType= "Int" resultType="MenuVO">
+		SELECT *
+		FROM MENU
+		WHERE MENU_NO = #{VALUE}
+	</select>
+
+	<select id="selectMyReview" parameterType="HashMap" resultType="ReviewFeedbackVO">
+		SELECT R.MENU_NO, R.MEMBER_ID, R.MENU_STAR, R.REVIEW_CONTENT, R.REVIEW_DATE
+		, F.FEEDBACK_DATE, F.FEEDBACK_CONTENT, F.OWNER_ID, M.MEMBER_IMAGE
+          FROM REVIEW R, FEEDBACK F, MEMBER M
+          WHERE R.MEMBER_ID = F.MEMBER_ID(+)
+          	AND R.MEMBER_ID = M.MEMBER_ID 
+            AND R.MEMBER_ID = #{member_id}
+            AND R.MENU_NO = #{menu_no}
+	</select>
+	
+	<select id="selectReviewFeedbackList" parameterType="hashMap" resultType="ReviewFeedbackVO">
+		SELECT MENU_NO, MEMBER_ID, MENU_STAR, MEMBER_IMAGE
+		, REVIEW_CONTENT
+		, TO_CHAR(REVIEW_DATE,'YYYY.MM.DD HH:MI') REVIEW_DATE
+		, TO_CHAR(FEEDBACK_DATE,'YYYY.MM.DD HH:MI') FEEDBACK_DATE
+		, FEEDBACK_CONTENT ,OWNER_ID
+		FROM (SELECT ROWNUM AS RNUM, R1.*
+			  FROM (SELECT R.MENU_NO, R.MEMBER_ID, R.MENU_STAR, R.REVIEW_CONTENT, R.REVIEW_DATE
+			  				,F.FEEDBACK_DATE, F.FEEDBACK_CONTENT, F.OWNER_ID
+			  				,M.MEMBER_IMAGE 
+				    FROM REVIEW R, FEEDBACK F, MEMBER M
+		      	    WHERE  R.MENU_NO = #{menu_no}	
+		      	    	AND R.MENU_NO = F.MENU_NO(+)
+		      	    	AND R.MEMBER_ID = F.MEMBER_ID(+)
+		      	    	AND R.MEMBER_ID = M.MEMBER_ID
+		      	    	<if test="member_id != null and !member_id.equals('')">
+		      	    	AND R.MEMBER_ID != #{member_id}
+		      	    	</if>
+		      	    ORDER BY REVIEW_DATE DESC) R1
+		      ) 
+		WHERE RNUM <![CDATA[>=]]> #{review_start} AND RNUM <![CDATA[ <= ]]> #{review_end}
+	</select>
+	
+	<select id="selectReviewCount" parameterType="int" resultType="int">
+		SELECT COUNT(*)
+		FROM REVIEW
+		WHERE MENU_NO = #{menu_no}
+	</select>
+	
+	<select id="selectCheckReview" parameterType="ReviewVO" resultType="int">
+		SELECT COUNT(*)
+		FROM REVIEW
+		WHERE MENU_NO = #{menu_no} 
+			AND MEMBER_ID = #{member_id}
+	</select>
+	
+	<select id="selectAvgStar" parameterType="int" resultType="double">
+		SELECT ROUND(AVG(MENU_STAR),1)
+		FROM REVIEW
+		WHERE MENU_NO = #{menu_no}
+	</select>
+	
+	<select id="selectOwnerId" parameterType="int" resultType="String">
+		SELECT F.OWNER_ID 
+		FROM FOODTRUCK F, MENU M
+		WHERE M.TRUCK_CODE = F.TRUCK_CODE 
+				AND M.MENU_NO = #{menu_no}
+	</select>	
+	
+	<insert id="insertReview" parameterType="ReviewVO">
+		INSERT INTO REVIEW
+		VALUES(#{menu_no},#{member_id},#{menu_star},#{review_content},sysdate)
+	</insert>
+	
+	<delete id="deleteReview" parameterType="HashMap">
+		DELETE 
+		FROM REVIEW
+		WHERE MENU_NO = #{menu_no}
+			AND MEMBER_ID = #{member_id}
+	</delete>
+
+</mapper>

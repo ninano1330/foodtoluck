@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org/DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<!-- mybatis.EmpVO를 EmpVo 로 쓸수있도록 설정 필수사항 x  설정을 안했을 경우 configuration.xml 에 resultType을 mybatis.EmpVO로 값을 줘야함-->
+<typeAliases>
+	<typeAlias type="kitri.project.vo.MemberVO" alias="MemberVO"/>
+	<typeAlias type="kitri.project.vo.OwnerVO"/>
+	<typeAlias type="kitri.project.vo.FoodtruckVO" alias="FoodtruckVO"/>
+	<typeAlias type="kitri.project.vo.MenuVO"/>
+	<typeAlias type="kitri.project.vo.BookmarkVO"/>
+	
+	<typeAlias type="kitri.project.vo.ReviewVO" alias="ReviewVO"/>
+	<typeAlias type="kitri.project.vo.FeedbackVO" alias="FeedbackVO"/>
+	<typeAlias type="kitri.project.vo.ReviewFeedbackVO" alias="ReviewFeedbackVO"/>
+	<typeAlias type="kitri.project.vo.FoodTypeVO" alias="FoodTypeVO"/> 
+	<typeAlias type="kitri.project.vo.Foodtruck_FoodTypeVO" alias="Foodtruck_FoodTypeVO"/> 
+	<typeAlias type="kitri.project.vo.MemberMenuVO" alias="MemberMenuVO"/> 
+	<typeAlias type="kitri.project.vo.TimeLineVO" alias="TimeLineVO"/>
+    <typeAlias type="kitri.project.vo.TimeLineCommentVO" alias="TimeLineCommentVO"/>
+    <typeAlias type="kitri.project.vo.NoticeVO" alias="NoticeVO"/>
+    <typeAlias type="kitri.project.vo.ReplyVO" alias="ReplyVO"/>
+    <typeAlias type="kitri.project.vo.BoardVO" alias="BoardVO"/>
+</typeAliases>
+
+</configuration>

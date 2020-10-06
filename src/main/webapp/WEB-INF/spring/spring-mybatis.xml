@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.3.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+<!-- 	1.mybatis 데이터소스(=커넥션풀) 
+를  스프링 제공 DataSource 객체 bean 생성-->
+<bean id="dataSource" class=
+"org.springframework.jdbc.datasource.DriverManagerDataSource">
+<property name="driverClassName" value=
+"oracle.jdbc.driver.OracleDriver" />
+<!-- <property name="url" value="jdbc:oracle:thin:@127.0.0.1:1521:xe" /> -->
+<property name="url" value="jdbc:oracle:thin:@127.0.0.1:1521:ORCL" />
+<property name="username" value="foodtoluck" />
+<property name="password" value="foodtoluck" />
+</bean>
+
+<!-- 2. SqlSessionFactory 객체 bean 생성 -->
+<bean id="sqlSessionFactory"
+class="org.mybatis.spring.SqlSessionFactoryBean" >
+<property name="dataSource" ref="dataSource" />
+<!-- mtybatis설정, 매핑파일 -->
+<property name="configLocation" 
+value="/WEB-INF/spring/configuration.xml" />
+<property name="mapperLocations" 
+value="/WEB-INF/spring/mapper/*-mapper.xml" />
+</bean>
+
+<!-- 3.Mapper인터페이스 사용 설정 -->
+<!-- <bean class=
+"org.mybatis.spring.mapper.MapperFactoryBean">
+	<property name="sqlSessionFactory"
+	ref="sqlSessionFactory" />
+	<property name="mapperInterface" 
+	value="kitri.project.dao.MemberMapper" />
+</bean> -->
+
+<!-- 4.mybatis : SqlSession 
+spring : SqlSessionTemplate 객체 bean 생성 -->
+<bean id="sqlSession" class=
+"org.mybatis.spring.SqlSessionTemplate">
+<constructor-arg ref="sqlSessionFactory" />
+</bean>
+
+<!-- 5. 트랜젝션 처리 설정 -->
+<!-- 5-1. 트랜젝션 매니저 설정(트랜젝션 처리 객체 생성) -->
+<!-- <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<property name="dataSource" ref="dataSource"/>
+</bean> -->
+
+<!-- 5-2. 트랜젝션처리 세부사항 설정(처리할 메소드 타겟지정 후 익셉션종류별 처리 등)  -->
+<!-- <tx:advice id="txAdvice" transaction-manager="transactionManager">
+	<tx:attributes>
+		<tx:method name="get*" 
+		read-only="true" 
+		rollback-for="Exception" 
+		propagation="REQUIRED" 
+		isolation="READ_COMMITTED"/>
+	</tx:attributes>
+</tx:advice> -->
+
+<!-- 5-3. 패키지.ServiceImpl.*(..) 처리 대상 설정 -->
+<!-- <aop:config>
+	<aop:pointcut expression="execution (public * kitri.edu.mybatismapper.*.*(..))" id="empService"/>
+	<aop:advisor advice-ref="txAdvice" pointcut-ref="empService"/>
+</aop:config> -->
+</beans>

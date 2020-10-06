@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Foodtruck">
+
+	<select id="selectAllFoodtruck" resultType="FoodtruckVO" >
+		select *
+		  from foodtruck
+	</select>
+	<select id="selectFoodtruck" resultType="foodtruckVO" parameterType="int">
+		select *
+		from foodtruck
+		where truck_code = #{truck_code}
+	</select>
+	
+	<insert id="insertTruck" parameterType="FoodtruckVO">
+		<selectKey keyProperty="truck_code" order="BEFORE" resultType="int">
+				select truck_code_seq.nextval from dual
+		</selectKey>
+	insert into foodtruck values
+	(#{truck_code}, #{truck_name}, #{truck_image}, 
+	#{truck_intro}, #{truck_like}, #{truck_x} , #{truck_y},
+	#{owner_id}, #{address_first},#{address_second},#{address_third},#{address_full},'waiting')
+	</insert>
+	
+	<update id="updateTruck" parameterType="FoodtruckVO">
+	update foodtruck 
+	set truck_name=#{truck_name},
+	truck_image=#{truck_image} 
+	where truck_code = #{truck_code}
+	</update>
+	
+	<delete id="deleteTruck" parameterType="int">
+		delete foodtruck where truck_code=#{truck_code}
+	</delete>
+	
+	<select id="isFavorite" parameterType="hashmap" resultType="int">
+	select count(*) 
+	from bookmark 
+	where member_id=#{userId} and truck_code=#{truck_code}
+	</select>
+	
+	<!-- 강용이꺼 -->
+	<select id="all" resultType="FoodtruckVO">
+	select truck_name, address_first, address_second, address_third, truck_x, truck_y from foodtruck
+	</select>
+	
+	
+	
+	<select id="searchtruck" resultType="FoodtruckVO" parameterType="FoodtruckVO">
+	
+	 select truck_code, truck_name, address_full, truck_intro, truck_x, truck_y, truck_image 
+	 from foodtruck	
+	 <where>
+	     
+	     
+	   <!--  <if test="address_full != null && menu_type !=null">
+	        address_full like '%'||#{address_full}||'%' 
+	    </if> -->
+	    
+	    <if test="address_full != null">
+	       address_full like '%'||#{address_full}||'%' 
+	    </if>
+	   
+	    
+	    
+	    <!-- <if test="address_first != null">
+	       address_first like #{address_first}
+	    </if>
+	     <if test="address_second != null">
+	       address_second like #{address_second}
+	    </if>
+	     <if test="address_third != null">
+	       address_third like #{address_third}
+	    </if> -->
+	 </where>
+	</select>
+	
+	<insert id="inserttruck" parameterType="FoodtruckVO">
+	    insert into foodtruck(truck_code, truck_name, truck_intro, truck_x, truck_y, owner_id, address_first, address_second, address_third, address_full) 
+	    values(foodtruck_seq.nextval,#{truck_name}, #{truck_intro}, #{truck_x}, #{truck_y}, #{owner_id}, #{address_first}, #{address_second}, #{address_third}, #{address_full})
+	</insert> 
+	
+	<select id="getfoodtype" resultType="FoodTypeVO">
+	    select foodtype_code, foodtype_name from foodtype 
+	</select>
+	
+	<select id="getThistruckFoodtype" parameterType="int" resultType="Foodtruck_FoodTypeVO">
+		select * from Foodtruck_FoodType
+		where truck_code = #{truck_code}
+	</select>
+	
+	<select id="gettruckcode" parameterType="FoodtruckVO" resultType="int" >
+	    select truck_code from foodtruck
+	    where truck_name = #{truck_name}
+	    and owner_id = #{owner_id}
+	</select> 
+	
+	
+	<insert id="insertmenutype" parameterType="java.util.Map"> 
+	    
+	    insert into foodtruck_foodtype values(#{foodtype_code}, #{truck_code})
+	</insert> 
+	
+	
+	<select id="getfoodname" parameterType="int" resultType="String">
+		select ft.foodtype_name
+		from foodtype ft, foodtruck_foodtype ftft
+		where ft.foodtype_code = ftft.foodtype_code
+		AND ftft.truck_code = #{truck_code}
+	    
+	</select>
+	<!-- 강용이꺼 end -->
+	<delete id="deleteMenutype" parameterType="int">
+		delete foodtruck_foodtype
+		where truck_code = #{truck_code}
+	</delete>
+	
+	<select id="selectFavoriteFT" parameterType="String" resultType="FoodtruckVO">
+		select f.truck_code, f.truck_name, f.truck_image, f.truck_intro, f.truck_like, f.owner_id, f.ADDRESS_FULL
+		from bookmark b,foodtruck f
+		where b.truck_code=f.truck_code and member_id= #{userId}
+	</select>
+</mapper>

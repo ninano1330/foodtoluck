@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org/DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="tl">
+
+<!-- <select id="all" resultMap="empmap" >
+	select employee_id, phone_number, first_name
+	  from employees
+</select>
+<resultMap type="mybatis.EmpVO" id="empmap">
+<result column="phone_number" property="phone"/>
+<result column="employee_id" property="employee_id"/>
+<result column="first_name" property="firat_name"/>
+</resultMap> -->
+
+<select id="getOwnerId" parameterType="int" resultType="String">
+SELECT OWNER_ID
+FROM FOODTRUCK
+WHERE TRUCK_CODE = #{truck_code}
+</select>
+
+<select id="getMaxRownum" parameterType="int" resultType="int">
+SELECT COUNT(TIMELINE_NO)
+FROM TIMELINE
+WHERE TRUCK_CODE = #{truck_code}
+</select>
+
+<select id="getMaxTimeLineNo" parameterType="int" resultType="int">
+SELECT MAX(TIMELINE_NO)
+FROM TIMELINE
+WHERE TRUCK_CODE = #{truck_code}
+</select>
+
+<select id="getTimeLine" parameterType="java.util.Map" resultType="TimeLineVO">
+SELECT t.*, m.MEMBER_NICKNAME, m.MEMBER_IMAGE
+FROM (
+    SELECT a.*, ROWNUM rnum FROM (
+        SELECT * FROM TIMELINE WHERE TRUCK_CODE = #{truck_code} ORDER BY TIMELINE_NO
+        ) a WHERE ROWNUM <![CDATA[<=]]> #{maxRownum}
+) t , MEMBER m
+WHERE rnum >= #{minRownum} AND (t.MEMBER_ID = m.MEMBER_ID)
+ORDER BY TIMELINE_NO DESC
+</select>
+
+<select id="getTimeLineComment" parameterType="java.util.Map" resultType="TimeLineCommentVO">
+SELECT c.*, m.MEMBER_NICKNAME, m.MEMBER_IMAGE
+FROM TIMELINE_COMMENT c, MEMBER m
+WHERE TRUCK_CODE = #{truck_code} 
+	AND (TIMELINE_NO BETWEEN #{min_tlno} 
+	AND #{max_tlno}) AND (c.MEMBER_ID = m.MEMBER_ID)
+ORDER BY TIMELINE_NO DESC, TCOMMENT_NO
+</select>
+
+<insert id="setTimeline" parameterType="TimeLineVO">
+	<selectKey keyProperty="timeline_no" order="BEFORE" resultType="int">
+		SELECT NVL(MAX(timeline_no)+1, 1)
+		FROM timeline
+	</selectKey>
+INSERT INTO timeline
+VALUES (#{timeline_no}, 
+		#{timeline_image}, 
+		#{timeline_content}, 
+		sysdate, 
+		#{member_id}, 
+		#{truck_code})
+</insert>
+
+<select id="mdfTimelineModal" parameterType="TimeLineVO" resultType="TimeLineVO">
+SELECT *
+FROM TIMELINE
+WHERE TRUCK_CODE = #{truck_code} AND TIMELINE_NO = #{timeline_no} 
+</select>
+
+<select id="checkMember" parameterType="String" resultType="String">
+SELECT MEMBER_ID
+FROM MEMBER
+WHERE MEMBER_ID = #{member_id}
+</select>
+
+<update id="mdfSetTimeline" parameterType="TimeLineVO">
+UPDATE TIMELINE
+SET
+	TIMELINE_CONTENT = #{timeline_content},
+	TIMELINE_IMAGE = #{timeline_image},
+	TIMELINE_DATE = sysdate
+WHERE TRUCK_CODE = #{truck_code} AND TIMELINE_NO = #{timeline_no}
+</update>
+
+<select id="mdfGetTimeline" parameterType="TimeLineVO" resultType="TimeLineVO">
+SELECT 
+	TIMELINE_NO,
+	TIMELINE_CONTENT,
+	TIMELINE_IMAGE,
+	TIMELINE_DATE
+FROM TIMELINE
+WHERE TRUCK_CODE = #{truck_code} AND TIMELINE_NO = #{timeline_no} 
+</select>
+
+<insert id="inputComment" parameterType="TimeLineCommentVO">
+	<selectKey keyProperty="tcomment_no" order="BEFORE" resultType="int">
+		SELECT NVL(MAX(TCOMMENT_NO)+1, 1)
+		FROM TIMELINE_COMMENT
+	</selectKey>
+INSERT INTO TIMELINE_COMMENT
+VALUES (#{tcomment_no}, 
+		#{tcomment_content}, 
+		sysdate, 
+		#{timeline_no}, 
+		<if test="trecomment_no != 0">
+		#{trecomment_no}, 
+		</if>
+		<if test="trecomment_no == 0">
+		null,
+		</if>
+		#{member_id}, 
+		#{depth}, 
+		#{truck_code}, 
+		'n')
+</insert>
+
+<select id="getComment" parameterType="int" resultType="TimeLineCommentVO">
+SELECT c.*, m.MEMBER_NICKNAME, m.MEMBER_IMAGE
+FROM TIMELINE_COMMENT c, MEMBER m
+WHERE TCOMMENT_NO = #{tcomment_no} 
+	AND (m.MEMBER_ID = c.MEMBER_ID)
+</select>
+
+<select id="getCommentContent" parameterType="TimeLineCommentVO" resultType="TimeLineCommentVO">
+SELECT TCOMMENT_NO, TCOMMENT_CONTENT
+FROM TIMELINE_COMMENT
+WHERE TRUCK_CODE = #{truck_code} AND TCOMMENT_NO = #{tcomment_no}
+</select>
+
+<update id="mdfCommentAj" parameterType="TimeLineCommentVO">
+UPDATE TIMELINE_COMMENT
+SET
+	TCOMMENT_CONTENT = #{tcomment_content},
+	TCOMMENT_DATE = sysdate
+WHERE TRUCK_CODE = #{truck_code} AND TCOMMENT_NO = #{tcomment_no}
+</update>
+
+<delete id="delTimeline" parameterType="TimeLineCommentVO">
+DELETE 
+FROM TIMELINE
+WHERE TRUCK_CODE = #{truck_code} AND TIMELINE_NO = #{timeline_no}
+</delete>
+
+<delete id="delComment" parameterType="TimeLineCommentVO">
+DELETE 
+FROM TIMELINE_COMMENT
+WHERE TRUCK_CODE = #{truck_code} AND TIMELINE_NO = #{timeline_no} AND TCOMMENT_NO = #{tcomment_no}
+</delete>
+
+<update id="upDelComment" parameterType="TimeLineCommentVO">
+UPDATE TIMELINE_COMMENT
+SET 
+	TCOMMENT_CONTENT = '--- 삭제된 댓글입니다. ---',
+	TCOMMENT_DATE = sysdate,
+	DEL = 'y'
+WHERE TRUCK_CODE = #{truck_code} AND TIMELINE_NO = #{timeline_no} AND TCOMMENT_NO = #{tcomment_no}
+</update>
+
+<select id="existLowerComment" parameterType="TimeLineCommentVO" resultType="int">
+SELECT COUNT(TRECOMMENT_NO)
+FROM TIMELINE_COMMENT
+WHERE TRUCK_CODE = #{truck_code} AND TIMELINE_NO = #{timeline_no} AND TRECOMMENT_NO = #{tcomment_no}
+</select>
+
+
+</mapper>

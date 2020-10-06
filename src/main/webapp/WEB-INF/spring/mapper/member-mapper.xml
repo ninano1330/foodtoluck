@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Member">
+
+	<insert id="insertMember" parameterType="MemberVO">
+	insert into member values
+	(#{member_id}, #{member_pw}, #{member_phone}, 
+	#{member_email}, #{member_gender}, #{member_nickname} , SYSDATE,
+	#{member_code}, #{member_image},'active')
+	</insert>
+	
+	<insert id="insertOwner" parameterType="OwnerVO">
+	insert into owner values
+	(#{owner_id}, #{reg_number})	
+	</insert>
+	
+	<update id="updateMember" parameterType="MemberVO">
+	update member 
+	set member_email=#{member_email},
+	member_nickname=#{member_nickname},
+	member_phone=#{member_phone},
+	member_gender=#{member_gender},
+	member_image=#{member_image} 
+	where member_id = #{member_id}
+	</update>
+	
+	<select id="pwCheck" parameterType="String" resultType="MemberVO">
+	select member_pw from member 
+	where member_id=#{member_id}
+	</select>
+	<update id="pwChange" parameterType="MemberVO">
+	update member 
+	set member_pw=#{member_pw}
+	where member_id = #{member_id}
+	</update>
+	
+	<insert id="insertBookmark" parameterType="BookmarkVO">
+	insert into bookmark values
+	(#{member_id}, #{truck_code}, SYSDATE)	
+	</insert>
+	
+	<delete id="deleteBookmark" parameterType="BookmarkVO">
+		delete bookmark 
+		where member_id=#{member_id} and truck_code=#{truck_code}
+	</delete>
+	<insert id="insertMemberMenu" parameterType="MemberMenuVO">
+	insert into Member_Menu values
+	(#{menu_no}, #{member_id})
+	</insert>
+	
+	<delete id="deleteMemberMenu" parameterType="MemberMenuVO">
+		delete member_menu 
+		where member_id=#{member_id} and menu_no=#{menu_no}
+	</delete>
+	<select id="selectMemberMenu" parameterType="String" resultType="MemberMenuVO">
+		select * from member_menu where member_id=#{userId}
+	</select>
+	
+	<select id="selectMember" parameterType="String" resultType="MemberVO">
+	SELECT member_id, member_phone,member_email,member_gender,member_nickname,member_code,
+	member_image
+	FROM MEMBER 
+	WHERE MEMBER_ID = #{member_id}
+	</select>
+</mapper>
